@@ -73,12 +73,14 @@ export async function getStudentCheckouts(studentId) {
 
 // ── Create ────────────────────────────────────────────────────────────────────
 
-export async function addStudent({ name, grade }) {
+export async function addStudent({ name, grade, familyId, parentEmail }) {
   const ref = await addDoc(collection(db, 'students'), {
-    name:      name.trim(),
-    grade:     grade.trim(),
-    active:    true,
-    createdAt: serverTimestamp(),
+    name:        name.trim(),
+    grade:       grade.trim(),
+    familyId:    familyId.trim(),
+    parentEmail: parentEmail.trim().toLowerCase(),
+    active:      true,
+    createdAt:   serverTimestamp(),
   });
   invalidateStudentCache();
   return ref;
@@ -86,10 +88,12 @@ export async function addStudent({ name, grade }) {
 
 // ── Update ────────────────────────────────────────────────────────────────────
 
-export async function updateStudent(id, { name, grade }) {
+export async function updateStudent(id, { name, grade, familyId, parentEmail }) {
   await updateDoc(doc(db, 'students', id), {
-    name:  name.trim(),
-    grade: grade.trim(),
+    name:        name.trim(),
+    grade:       grade.trim(),
+    familyId:    familyId.trim(),
+    parentEmail: parentEmail.trim().toLowerCase(),
   });
   invalidateStudentCache();
 }

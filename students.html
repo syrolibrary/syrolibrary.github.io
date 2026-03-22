@@ -61,6 +61,8 @@
         <tr>
           <th>Name</th>
           <th>Grade</th>
+          <th>Family ID</th>
+          <th>Parent Email</th>
           <th class="td-actions"></th>
         </tr>
       </thead>
@@ -94,6 +96,15 @@
       <div class="form-group">
         <label class="form-label" for="f-grade">Grade <span style="color:var(--color-danger)">*</span></label>
         <input id="f-grade" class="form-input" type="text" placeholder="e.g. Grade 4" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-family-id">Family ID <span style="color:var(--color-danger)">*</span></label>
+        <input id="f-family-id" class="form-input" type="text" placeholder="e.g. FAM-042" autocomplete="off" />
+        <p class="form-hint">Used to group siblings. Assign the same ID to all children in a family.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-parent-email">Parent Email <span style="color:var(--color-danger)">*</span></label>
+        <input id="f-parent-email" class="form-input" type="email" placeholder="e.g. parent@gmail.com" autocomplete="off" />
       </div>
       <p id="student-modal-error" class="text-danger mt-2" hidden></p>
     </div>
@@ -202,6 +213,8 @@ function renderTable(students) {
     <tr>
       <td style="font-weight:500">${escHtml(s.name)}</td>
       <td>${escHtml(s.grade)}</td>
+      <td style="color:var(--color-gray-500)">${escHtml(s.familyId) || '—'}</td>
+      <td style="color:var(--color-gray-500)">${escHtml(s.parentEmail) || '—'}</td>
       <td class="td-actions">
         <button class="btn btn-ghost btn-sm history-btn" data-id="${s.id}">History</button>
         <button class="btn btn-ghost btn-sm edit-btn"    data-id="${s.id}" style="margin-left:0.25rem">Edit</button>
@@ -235,12 +248,14 @@ document.getElementById('add-student-btn').addEventListener('click', () => openS
 function openStudentModal(student) {
   _editingStudent = student;
 
-  document.getElementById('student-modal-title').textContent = student ? 'Edit Student' : 'Add Student';
-  document.getElementById('student-modal-save').textContent  = student ? 'Save Changes' : 'Add Student';
-  document.getElementById('f-name').value                    = student?.name  ?? '';
-  document.getElementById('f-grade').value                   = student?.grade ?? '';
-  document.getElementById('student-modal-error').hidden      = true;
-  document.getElementById('student-modal-save').disabled     = false;
+  document.getElementById('student-modal-title').textContent  = student ? 'Edit Student' : 'Add Student';
+  document.getElementById('student-modal-save').textContent   = student ? 'Save Changes' : 'Add Student';
+  document.getElementById('f-name').value                     = student?.name        ?? '';
+  document.getElementById('f-grade').value                    = student?.grade       ?? '';
+  document.getElementById('f-family-id').value                = student?.familyId    ?? '';
+  document.getElementById('f-parent-email').value             = student?.parentEmail ?? '';
+  document.getElementById('student-modal-error').hidden       = true;
+  document.getElementById('student-modal-save').disabled      = false;
 
   openModal(studentModal);
 }
@@ -250,21 +265,28 @@ document.getElementById('student-modal-save').addEventListener('click', async ()
   const saveBtn = document.getElementById('student-modal-save');
   errorEl.hidden = true;
 
-  const name  = document.getElementById('f-name').value.trim();
-  const grade = document.getElementById('f-grade').value.trim();
+  const name        = document.getElementById('f-name').value.trim();
+  const grade       = document.getElementById('f-grade').value.trim();
+  const familyId    = document.getElementById('f-family-id').value.trim();
+  const parentEmail = document.getElementById('f-parent-email').value.trim();
 
-  if (!name)  { errorEl.textContent = 'Name is required.';  errorEl.hidden = false; return; }
-  if (!grade) { errorEl.textContent = 'Grade is required.'; errorEl.hidden = false; return; }
+  if (!name)        { errorEl.textContent = 'Name is required.';         errorEl.hidden = false; return; }
+  if (!grade)       { errorEl.textContent = 'Grade is required.';        errorEl.hidden = false; return; }
+  if (!familyId)    { errorEl.textContent = 'Family ID is required.';    errorEl.hidden = false; return; }
+  if (!parentEmail || !parentEmail.includes('@')) {
+    errorEl.textContent = 'A valid parent email is required.';
+    errorEl.hidden = false; return;
+  }
 
   saveBtn.disabled    = true;
   saveBtn.textContent = 'Saving…';
 
   try {
     if (_editingStudent) {
-      await updateStudent(_editingStudent.id, { name, grade });
+      await updateStudent(_editingStudent.id, { name, grade, familyId, parentEmail });
       showToast('Student updated.', 'success');
     } else {
-      await addStudent({ name, grade });
+      await addStudent({ name, grade, familyId, parentEmail });
       showToast(`${name} added.`, 'success');
     }
     closeModal(studentModal);
@@ -285,7 +307,9 @@ document.getElementById('hm-close').addEventListener('click', () => closeModal(h
 
 async function openHistoryModal(student) {
   document.getElementById('hm-name').textContent  = student.name;
-  document.getElementById('hm-grade').textContent = student.grade;
+  document.getElementById('hm-grade').textContent =
+    [student.grade, student.familyId && `Family: ${student.familyId}`, student.parentEmail]
+      .filter(Boolean).join(' · ');
   document.getElementById('hm-active').innerHTML  =
     '<span class="spinner spinner-sm"></span>';
   document.getElementById('hm-history').innerHTML =
