@@ -5,8 +5,7 @@
 import { db } from './firebase-config.js';
 import {
   collection, doc, addDoc, updateDoc,
-  getDocs, query, where, orderBy,
-  serverTimestamp,
+  getDocs, query, where, orderBy, serverTimestamp,
 } from 'firebase/firestore';
 
 let _students = null; // null = not yet loaded
@@ -20,11 +19,12 @@ export async function loadStudents() {
 
   const q = query(
     collection(db, 'students'),
-    where('active', '==', true),
-    orderBy('name')
+    where('active', '==', true)
   );
   const snap = await getDocs(q);
-  _students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  _students = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => a.name.localeCompare(b.name));
   return _students;
 }
 
