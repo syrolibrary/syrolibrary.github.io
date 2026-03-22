@@ -110,6 +110,8 @@
     </div>
 
     <div class="modal-footer">
+      <button id="student-modal-delete" class="btn btn-danger" hidden>Delete</button>
+      <div style="flex:1"></div>
       <button id="student-modal-cancel" class="btn btn-ghost">Cancel</button>
       <button id="student-modal-save"   class="btn btn-primary">Add Student</button>
     </div>
@@ -151,7 +153,7 @@
      ═══════════════════════════════════════════════════════════════════════════ -->
 <script type="module">
 import { requireAuth, signOutUser }                    from './js/auth.js';
-import { loadStudents, addStudent, updateStudent,
+import { loadStudents, addStudent, updateStudent, deleteStudent,
          getStudentCheckouts, invalidateStudentCache }  from './js/students.js';
 import { showToast, openModal, closeModal,
          initModalDismiss, escHtml, formatDate }        from './js/ui.js';
@@ -256,6 +258,9 @@ function openStudentModal(student) {
   document.getElementById('f-parent-email').value             = student?.parentEmail ?? '';
   document.getElementById('student-modal-error').hidden       = true;
   document.getElementById('student-modal-save').disabled      = false;
+  document.getElementById('student-modal-delete').hidden      = !student;
+  document.getElementById('student-modal-delete').disabled    = false;
+  document.getElementById('student-modal-delete').textContent = 'Delete';
 
   openModal(studentModal);
 }
@@ -297,6 +302,27 @@ document.getElementById('student-modal-save').addEventListener('click', async ()
     errorEl.hidden      = false;
     saveBtn.disabled    = false;
     saveBtn.textContent = _editingStudent ? 'Save Changes' : 'Add Student';
+  }
+});
+
+// ── Delete student ────────────────────────────────────────────────────────────
+document.getElementById('student-modal-delete').addEventListener('click', async () => {
+  if (!_editingStudent) return;
+  if (!confirm(`Delete ${_editingStudent.name}?\nThis cannot be undone.`)) return;
+
+  const deleteBtn = document.getElementById('student-modal-delete');
+  deleteBtn.disabled    = true;
+  deleteBtn.textContent = '…';
+
+  try {
+    await deleteStudent(_editingStudent.id);
+    closeModal(studentModal);
+    showToast(`${_editingStudent.name} deleted.`, 'success');
+    await refresh();
+  } catch (err) {
+    showToast(err.message, 'error');
+    deleteBtn.disabled    = false;
+    deleteBtn.textContent = 'Delete';
   }
 });
 

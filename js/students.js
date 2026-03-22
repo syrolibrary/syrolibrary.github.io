@@ -4,7 +4,7 @@
 
 import { db } from './firebase-config.js';
 import {
-  collection, doc, addDoc, updateDoc,
+  collection, doc, addDoc, updateDoc, deleteDoc,
   getDocs, query, where, orderBy, serverTimestamp,
 } from 'firebase/firestore';
 
@@ -84,6 +84,21 @@ export async function addStudent({ name, grade, familyId, parentEmail }) {
   });
   invalidateStudentCache();
   return ref;
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+
+// Refuses to delete if the student has any active checkouts.
+export async function deleteStudent(id) {
+  const snap = await getDocs(
+    query(collection(db, 'checkouts'),
+      where('studentId', '==', id),
+      where('status',    '==', 'active'))
+  );
+  if (!snap.empty) {
+    throw new Error('This student has active checkouts. Check them in before deleting.');
+  }
+  return deleteDoc(doc(db, 'students', id));
 }
 
 // ── Update ────────────────────────────────────────────────────────────────────
