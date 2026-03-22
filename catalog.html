@@ -21,16 +21,62 @@
       top: 0;
       z-index: 100;
     }
-    .catalog-brand {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--color-gray-900);
+    .catalog-brand { font-size: 1.0625rem; font-weight: 700; color: var(--color-gray-900); }
+    .catalog-brand span { color: var(--color-primary); }
+
+    /* ── Label filter bar ─────────────────────────────────────────────────── */
+    .label-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin: 0.75rem 0 0;
     }
-    .catalog-brand span {
-      color: var(--color-primary);
+    .label-pill {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      border: 1px solid var(--color-gray-300);
+      background: var(--color-white);
+      color: var(--color-gray-600);
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      user-select: none;
+    }
+    .label-pill:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .label-pill.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
     }
 
-    /* ── Book grid ────────────────────────────────────────────────────────── */
+    /* ── Results bar ──────────────────────────────────────────────────────── */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 1rem 0 0.75rem;
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+    }
+    .view-toggle { display: flex; gap: 0.25rem; }
+    .view-toggle button {
+      background: none;
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--radius-sm);
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      color: var(--color-gray-400);
+      line-height: 1;
+      transition: background 0.1s, color 0.1s;
+    }
+    .view-toggle button.active {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border-color: var(--color-gray-400);
+    }
+
+    /* ── Card grid ────────────────────────────────────────────────────────── */
     .book-grid-catalog {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
@@ -43,79 +89,57 @@
       overflow: hidden;
       transition: box-shadow 0.15s, border-color 0.15s;
     }
-    .book-card-catalog:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--color-gray-300);
-    }
+    .book-card-catalog:hover { box-shadow: var(--shadow-md); border-color: var(--color-gray-300); }
 
     /* ── Book cover ───────────────────────────────────────────────────────── */
     .book-cover {
-      width: 100%;
-      aspect-ratio: 2 / 3;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      width: 100%; aspect-ratio: 2/3; position: relative;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
-    .book-cover img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 1;
-    }
-    .book-cover-initial {
-      font-size: 3rem;
-      font-weight: 800;
-      color: rgba(255, 255, 255, 0.75);
-      user-select: none;
-      line-height: 1;
-    }
+    .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .book-cover-initial { font-size: 3rem; font-weight: 800; color: rgba(255,255,255,0.75); user-select: none; line-height: 1; }
 
     /* ── Card body ────────────────────────────────────────────────────────── */
-    .book-card-body {
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
+    .book-card-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
     .book-card-title {
-      font-weight: 600;
-      font-size: 0.875rem;
-      line-height: 1.35;
-      color: var(--color-gray-900);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-weight: 600; font-size: 0.875rem; line-height: 1.35; color: var(--color-gray-900);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .book-card-author {
-      font-size: 0.8rem;
-      color: var(--color-gray-500);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 0.25rem;
+      font-size: 0.8rem; color: var(--color-gray-500);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.1rem;
+    }
+    .card-labels { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.2rem 0 0.25rem; }
+    .card-label {
+      font-size: 0.7rem; padding: 0.1rem 0.45rem;
+      background: var(--color-gray-100); border: 1px solid var(--color-gray-200);
+      border-radius: 9999px; color: var(--color-gray-500); white-space: nowrap;
     }
 
-    /* ── Count + results bar ──────────────────────────────────────────────── */
-    .results-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-      font-size: 0.875rem;
-      color: var(--color-gray-500);
+    /* ── List view ────────────────────────────────────────────────────────── */
+    .book-list-catalog { display: flex; flex-direction: column; gap: 0.5rem; }
+    .book-row-catalog {
+      display: flex; align-items: center; gap: 0.875rem;
+      background: var(--color-white); border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-md); padding: 0.625rem 0.875rem;
+      cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s;
     }
+    .book-row-catalog:hover { box-shadow: var(--shadow-md); border-color: var(--color-gray-300); }
+    .book-row-thumb {
+      flex-shrink: 0; width: 36px; height: 54px; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative; font-size: 1.2rem;
+      font-weight: 800; color: rgba(255,255,255,0.8);
+    }
+    .book-row-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .book-row-info { flex: 1; min-width: 0; }
+    .book-row-title { font-weight: 600; font-size: 0.9rem; color: var(--color-gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-row-author { font-size: 0.8rem; color: var(--color-gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.2rem; }
+    .book-row-right { flex-shrink: 0; text-align: right; }
 
     /* ── Responsive ───────────────────────────────────────────────────────── */
     @media (max-width: 480px) {
-      .book-grid-catalog {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 0.75rem;
-      }
+      .book-grid-catalog { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
       .book-cover-initial { font-size: 2.25rem; }
       .catalog-header { padding: 0 1rem; }
     }
@@ -159,24 +183,45 @@
     />
   </div>
 
+  <!-- Label filter pills -->
+  <div id="label-bar" class="label-bar" hidden></div>
+
   <!-- Loading -->
   <div id="loading" class="page-loading">
     <span class="spinner"></span>
     <span>Loading books…</span>
   </div>
 
-  <!-- Results count -->
+  <!-- Results bar -->
   <div id="results-bar" class="results-bar" hidden>
     <span id="count"></span>
+    <div class="view-toggle">
+      <button id="view-grid" class="active" title="Card view" aria-label="Card view">
+        <!-- grid icon -->
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </button>
+      <button id="view-list" title="List view" aria-label="List view">
+        <!-- list icon -->
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+          <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Book grid -->
-  <div id="book-grid" class="book-grid-catalog" hidden></div>
+  <!-- Book container (grid or list) -->
+  <div id="book-container" hidden></div>
 
   <!-- Empty state -->
   <div class="empty-state hidden" id="empty">
     <p class="empty-state-title">No books found</p>
-    <p>Try a different search term.</p>
+    <p>Try a different search term or label.</p>
   </div>
 
 </div>
@@ -217,98 +262,169 @@
 import { subscribeToBooks, filterBooks } from './js/books.js';
 import { escHtml, openModal, closeModal, initModalDismiss } from './js/ui.js';
 
-// ── Cover image ───────────────────────────────────────────────────────────────
-// Uses Open Library's free cover API when an ISBN is available.
-// Falls back to a coloured placeholder with the book's first letter.
-
+// ── Cover helpers ─────────────────────────────────────────────────────────────
 const COLORS = [
-  '#1a56db', '#057a55', '#c27803', '#7e3af2',
-  '#0369a1', '#be185d', '#047857', '#b45309',
-  '#dc2626', '#0891b2',
+  '#1a56db','#057a55','#c27803','#7e3af2',
+  '#0369a1','#be185d','#047857','#b45309',
+  '#dc2626','#0891b2',
 ];
-
 function placeholderColor(title) {
   let h = 0;
   for (const c of (title || '')) h = ((h << 5) - h + c.charCodeAt(0)) | 0;
   return COLORS[Math.abs(h) % COLORS.length];
 }
 
-// ── Detail modal setup ────────────────────────────────────────────────────────
+// ── Detail modal ──────────────────────────────────────────────────────────────
 const detailModal = document.getElementById('detail-modal');
 initModalDismiss(detailModal);
 document.getElementById('dm-close').addEventListener('click', () => closeModal(detailModal));
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let _allBooks = [];
+let _allBooks    = [];
+let _activeLabel = null;   // null = All
+let _viewMode    = 'grid'; // 'grid' | 'list'
 
-// ── Subscribe (public — no auth needed once rules are deployed) ───────────────
+// ── View toggle ───────────────────────────────────────────────────────────────
+document.getElementById('view-grid').addEventListener('click', () => setView('grid'));
+document.getElementById('view-list').addEventListener('click', () => setView('list'));
+
+function setView(mode) {
+  _viewMode = mode;
+  document.getElementById('view-grid').classList.toggle('active', mode === 'grid');
+  document.getElementById('view-list').classList.toggle('active', mode === 'list');
+  render();
+}
+
+// ── Subscribe ─────────────────────────────────────────────────────────────────
 subscribeToBooks((books) => {
   _allBooks = books;
-  const term = document.getElementById('search-input').value.trim();
-  renderGrid(filterBooks(books, term));
-  document.getElementById('loading').hidden     = true;
-  document.getElementById('results-bar').hidden = false;
-  document.getElementById('book-grid').hidden   = false;
+  renderLabelBar();
+  render();
+  document.getElementById('loading').hidden        = true;
+  document.getElementById('results-bar').hidden    = false;
+  document.getElementById('book-container').hidden = false;
 });
 
 // ── Search ────────────────────────────────────────────────────────────────────
-document.getElementById('search-input').addEventListener('input', (e) => {
-  renderGrid(filterBooks(_allBooks, e.target.value.trim()));
+document.getElementById('search-input').addEventListener('input', render);
+
+// ── Filtered list ─────────────────────────────────────────────────────────────
+function getFiltered() {
+  const term = document.getElementById('search-input').value.trim();
+  let books = filterBooks(_allBooks, term);
+  if (_activeLabel) {
+    books = books.filter(b => Array.isArray(b.labels) && b.labels.includes(_activeLabel));
+  }
+  return books;
+}
+
+// ── Label bar ─────────────────────────────────────────────────────────────────
+function renderLabelBar() {
+  const allLabels = [...new Set(_allBooks.flatMap(b => b.labels ?? []))].sort();
+  const bar = document.getElementById('label-bar');
+  if (!allLabels.length) { bar.hidden = true; return; }
+
+  bar.hidden = false;
+  bar.innerHTML = ['All', ...allLabels].map(l => `
+    <button class="label-pill${(l === 'All' ? !_activeLabel : _activeLabel === l) ? ' active' : ''}"
+            data-label="${l === 'All' ? '' : escHtml(l)}">
+      ${escHtml(l)}
+    </button>`).join('');
+}
+
+document.getElementById('label-bar').addEventListener('click', (e) => {
+  const pill = e.target.closest('.label-pill');
+  if (!pill) return;
+  _activeLabel = pill.dataset.label || null;
+  renderLabelBar();
+  render();
 });
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function renderGrid(books) {
-  const grid  = document.getElementById('book-grid');
-  const empty = document.getElementById('empty');
-  const count = document.getElementById('count');
+function render() {
+  const books     = getFiltered();
+  const container = document.getElementById('book-container');
+  const empty     = document.getElementById('empty');
+  const count     = document.getElementById('count');
 
   count.textContent = books.length
     ? `${books.length} book${books.length !== 1 ? 's' : ''}`
     : '';
 
   if (!books.length) {
-    grid.innerHTML = '';
+    container.innerHTML = '';
     empty.classList.remove('hidden');
     return;
   }
-
   empty.classList.add('hidden');
 
-  grid.innerHTML = books.map(book => {
-    const color   = placeholderColor(book.title);
-    const initial = (book.title || '?')[0].toUpperCase();
-    const coverUrl = book.isbn
-      ? `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(book.isbn)}-M.jpg`
-      : null;
-
-    const avail      = book.availableCopies > 0;
-    const badgeCls   = avail ? 'badge-available' : 'badge-checked-out';
-    const badgeLabel = avail
-      ? (book.totalCopies > 1
-          ? `Available (${book.availableCopies}/${book.totalCopies})`
-          : 'Available')
-      : 'Checked out';
-
-    return `
-      <div class="book-card-catalog" data-id="${book.id}" style="cursor:pointer">
-        <div class="book-cover" style="background-color:${color}">
-          <span class="book-cover-initial">${escHtml(initial)}</span>
-          ${coverUrl
-            ? `<img src="${coverUrl}" alt="${escHtml(book.title)}" loading="lazy"
-                    onerror="this.remove()" />`
-            : ''}
-        </div>
-        <div class="book-card-body">
-          <div class="book-card-title">${escHtml(book.title)}</div>
-          <div class="book-card-author">${escHtml(book.author)}</div>
-          <span class="badge ${badgeCls}">${badgeLabel}</span>
-        </div>
-      </div>`;
-  }).join('');
+  if (_viewMode === 'grid') {
+    container.className = 'book-grid-catalog';
+    container.innerHTML = books.map(book => renderCard(book)).join('');
+  } else {
+    container.className = 'book-list-catalog';
+    container.innerHTML = books.map(book => renderRow(book)).join('');
+  }
 }
 
-// ── Book card click → detail modal ────────────────────────────────────────────
-document.getElementById('book-grid').addEventListener('click', (e) => {
+function labelChipsHtml(labels, cls = 'card-label') {
+  if (!Array.isArray(labels) || !labels.length) return '';
+  return `<div class="card-labels">${labels.map(l => `<span class="${cls}">${escHtml(l)}</span>`).join('')}</div>`;
+}
+
+function badgeHtml(book) {
+  const avail = book.availableCopies > 0;
+  const cls   = avail ? 'badge-available' : 'badge-checked-out';
+  const label = avail
+    ? (book.totalCopies > 1 ? `Available (${book.availableCopies}/${book.totalCopies})` : 'Available')
+    : 'Checked out';
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function coverImgTag(isbn, title, loading = 'lazy') {
+  if (!isbn) return '';
+  return `<img src="https://covers.openlibrary.org/b/isbn/${encodeURIComponent(isbn)}-M.jpg"
+               alt="${escHtml(title)}" loading="${loading}" onerror="this.remove()" />`;
+}
+
+function renderCard(book) {
+  const color   = placeholderColor(book.title);
+  const initial = (book.title || '?')[0].toUpperCase();
+  return `
+    <div class="book-card-catalog" data-id="${book.id}" style="cursor:pointer">
+      <div class="book-cover" style="background-color:${color}">
+        <span class="book-cover-initial">${escHtml(initial)}</span>
+        ${coverImgTag(book.isbn, book.title)}
+      </div>
+      <div class="book-card-body">
+        <div class="book-card-title">${escHtml(book.title)}</div>
+        <div class="book-card-author">${escHtml(book.author)}</div>
+        ${labelChipsHtml(book.labels)}
+        ${badgeHtml(book)}
+      </div>
+    </div>`;
+}
+
+function renderRow(book) {
+  const color   = placeholderColor(book.title);
+  const initial = (book.title || '?')[0].toUpperCase();
+  return `
+    <div class="book-row-catalog" data-id="${book.id}">
+      <div class="book-row-thumb" style="background-color:${color}">
+        ${escHtml(initial)}
+        ${coverImgTag(book.isbn, book.title)}
+      </div>
+      <div class="book-row-info">
+        <div class="book-row-title">${escHtml(book.title)}</div>
+        <div class="book-row-author">${escHtml(book.author)}</div>
+        ${labelChipsHtml(book.labels)}
+      </div>
+      <div class="book-row-right">${badgeHtml(book)}</div>
+    </div>`;
+}
+
+// ── Click → detail modal ──────────────────────────────────────────────────────
+document.getElementById('book-container').addEventListener('click', (e) => {
   const card = e.target.closest('[data-id]');
   if (!card) return;
   const book = _allBooks.find(b => b.id === card.dataset.id);
@@ -325,35 +441,27 @@ function openDetailModal(book) {
   const avail      = book.availableCopies > 0;
   const badgeCls   = avail ? 'badge-available' : 'badge-checked-out';
   const badgeLabel = avail
-    ? (book.totalCopies > 1
-        ? `Available (${book.availableCopies} of ${book.totalCopies} copies)`
-        : 'Available')
-    : (book.totalCopies > 1
-        ? `All ${book.totalCopies} copies checked out`
-        : 'Checked out');
+    ? (book.totalCopies > 1 ? `Available (${book.availableCopies} of ${book.totalCopies} copies)` : 'Available')
+    : (book.totalCopies > 1 ? `All ${book.totalCopies} copies checked out` : 'Checked out');
 
-  document.getElementById('dm-title').textContent  = book.title;
-  document.getElementById('dm-author').textContent = book.author;
-  document.getElementById('dm-badge').innerHTML    = `<span class="badge ${badgeCls}">${badgeLabel}</span>`;
-  document.getElementById('dm-isbn').textContent   = book.isbn ? `ISBN: ${book.isbn}` : '';
-  document.getElementById('dm-labels').innerHTML   = Array.isArray(book.labels) && book.labels.length
+  document.getElementById('dm-title').textContent   = book.title;
+  document.getElementById('dm-author').textContent  = book.author;
+  document.getElementById('dm-badge').innerHTML     = `<span class="badge ${badgeCls}">${badgeLabel}</span>`;
+  document.getElementById('dm-isbn').textContent    = book.isbn ? `ISBN: ${book.isbn}` : '';
+  document.getElementById('dm-labels').innerHTML    = Array.isArray(book.labels) && book.labels.length
     ? book.labels.map(l => `<span style="background:var(--color-gray-100);border:1px solid var(--color-gray-300);
         border-radius:9999px;padding:0.125rem 0.625rem;font-size:0.8125rem;">${escHtml(l)}</span>`).join('')
     : '';
   document.getElementById('dm-summary').textContent = book.summary || '';
 
-  // Cover
   const coverEl = document.getElementById('dm-cover');
   coverEl.style.backgroundColor = color;
-  coverEl.innerHTML = `<span style="font-size:2rem; font-weight:800;
-                                    color:rgba(255,255,255,0.75); position:relative; z-index:0;">
-                         ${escHtml(initial)}
-                       </span>
-                       ${coverUrl
-                         ? `<img src="${coverUrl}" alt="${escHtml(book.title)}"
-                                 onerror="this.remove()"
-                                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />`
-                         : ''}`;
+  coverEl.innerHTML = `
+    <span style="font-size:2rem;font-weight:800;color:rgba(255,255,255,0.75);position:relative;z-index:0;">
+      ${escHtml(initial)}
+    </span>
+    ${coverUrl ? `<img src="${coverUrl}" alt="${escHtml(book.title)}" onerror="this.remove()"
+                      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : ''}`;
 
   openModal(detailModal);
 }
