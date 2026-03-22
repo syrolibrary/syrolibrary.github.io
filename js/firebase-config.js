@@ -12,12 +12,13 @@ import { getFirestore }  from 'firebase/firestore';
 import { getAuth }       from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey: "AIzaSyCRQWQUmd7S3jn70pjqDNxaFh5eJnVYf_c",
+  authDomain: "syrolibrary.firebaseapp.com",
+  projectId: "syrolibrary",
+  storageBucket: "syrolibrary.firebasestorage.app",
+  messagingSenderId: "336627862247",
+  appId: "1:336627862247:web:f2684274afa3ed6389b042",
+  measurementId: "G-13P4DVTJS2"
 };
 
 const app = initializeApp(firebaseConfig);
