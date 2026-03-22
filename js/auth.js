@@ -87,7 +87,7 @@ export async function signInWithGoogle() {
 export async function signOutUser() {
   _userData = null;
   await signOut(auth);
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -151,13 +151,13 @@ export function requireAuth(requiredRole = null) {
       onAuthorized: (userData) => resolve(userData),
       onUnauthorized: (reason) => {
         if (reason === 'unauthenticated') {
-          window.location.href = 'index.html';
+          window.location.href = 'login.html';
         } else if (reason === 'wrong-role') {
           // Volunteer trying to access admin page — send to dashboard
           window.location.href = 'dashboard.html';
         } else {
           // no-access or error — go to login with message
-          window.location.href = 'index.html?denied=1';
+          window.location.href = 'login.html?denied=1';
         }
       },
     });
