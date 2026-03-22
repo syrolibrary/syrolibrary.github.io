@@ -156,7 +156,7 @@ export function requireAuth(requiredRole = null) {
           window.location.href = 'login.html';
         } else if (reason === 'wrong-role') {
           // Volunteer trying to access admin page — send to dashboard
-          window.location.href = 'dashboard.html';
+          window.location.href = 'catalog.html';
         } else {
           // no-access or error — go to login with message
           window.location.href = 'login.html?denied=1';

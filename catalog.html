@@ -24,6 +24,29 @@
     .catalog-brand { font-size: 1.0625rem; font-weight: 700; color: var(--color-gray-900); }
     .catalog-brand span { color: var(--color-primary); }
 
+    /* ── Staff nav bar (shown when logged in) ─────────────────────────────── */
+    .staff-nav-bar {
+      background: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-200);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      height: 42px;
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+    }
+    .staff-nav-bar .nav-link {
+      font-size: 0.8125rem;
+      padding: 0.3rem 0.625rem;
+    }
+    .staff-nav-bar .nav-user {
+      font-size: 0.8rem;
+      color: var(--color-gray-500);
+      margin-right: 0.5rem;
+    }
+
     /* ── Label filter bar ─────────────────────────────────────────────────── */
     .label-bar {
       display: flex;
@@ -43,12 +66,8 @@
       transition: background 0.1s, color 0.1s, border-color 0.1s;
       user-select: none;
     }
-    .label-pill:hover { border-color: var(--color-primary); color: var(--color-primary); }
-    .label-pill.active {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
-      color: #fff;
-    }
+    .label-pill:hover  { border-color: var(--color-primary); color: var(--color-primary); }
+    .label-pill.active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
 
     /* ── Results bar ──────────────────────────────────────────────────────── */
     .results-bar {
@@ -88,6 +107,7 @@
       border-radius: var(--radius-md);
       overflow: hidden;
       transition: box-shadow 0.15s, border-color 0.15s;
+      cursor: pointer;
     }
     .book-card-catalog:hover { box-shadow: var(--shadow-md); border-color: var(--color-gray-300); }
 
@@ -135,13 +155,14 @@
     .book-row-info { flex: 1; min-width: 0; }
     .book-row-title { font-weight: 600; font-size: 0.9rem; color: var(--color-gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .book-row-author { font-size: 0.8rem; color: var(--color-gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.2rem; }
-    .book-row-right { flex-shrink: 0; text-align: right; }
+    .book-row-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; }
 
     /* ── Responsive ───────────────────────────────────────────────────────── */
     @media (max-width: 480px) {
       .book-grid-catalog { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
       .book-cover-initial { font-size: 2.25rem; }
       .catalog-header { padding: 0 1rem; }
+      .staff-nav-bar { padding: 0 1rem; }
     }
   </style>
 
@@ -157,7 +178,7 @@
 </head>
 <body>
 
-<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<!-- ── Catalog header (always visible) ────────────────────────────────────── -->
 <header class="catalog-header">
   <div>
     <div class="catalog-brand">Syro <span>Library</span></div>
@@ -169,6 +190,17 @@
     Staff login
   </a>
 </header>
+
+<!-- ── Staff nav bar (visible when logged in) ─────────────────────────────── -->
+<nav id="staff-nav" class="staff-nav-bar" hidden>
+  <a href="catalog.html" class="nav-link active">Catalog</a>
+  <a href="students.html"   class="nav-link admin-only" hidden>Students</a>
+  <a href="books.html"      class="nav-link admin-only" hidden>Manage Books</a>
+  <a href="volunteers.html" class="nav-link admin-only" hidden>Volunteers</a>
+  <div style="flex:1"></div>
+  <span class="nav-user" id="nav-user"></span>
+  <button id="signout-btn" class="btn btn-ghost btn-sm" type="button">Sign out</button>
+</nav>
 
 <!-- ── Content ────────────────────────────────────────────────────────────── -->
 <div class="page-content">
@@ -197,14 +229,12 @@
     <span id="count"></span>
     <div class="view-toggle">
       <button id="view-grid" class="active" title="Card view" aria-label="Card view">
-        <!-- grid icon -->
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
           <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
         </svg>
       </button>
       <button id="view-list" title="List view" aria-label="List view">
-        <!-- list icon -->
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
           <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
@@ -215,7 +245,7 @@
     </div>
   </div>
 
-  <!-- Book container (grid or list) -->
+  <!-- Book container -->
   <div id="book-container" hidden></div>
 
   <!-- Empty state -->
@@ -228,56 +258,88 @@
 
 <!-- ── Book Detail Modal ──────────────────────────────────────────────────── -->
 <div id="detail-modal" class="modal-overlay" hidden>
-  <div class="modal" style="max-width:520px">
+  <div class="modal" style="max-width:540px">
 
     <div class="modal-header">
       <h2 class="modal-title" id="dm-title"></h2>
       <button class="modal-close" id="dm-close" aria-label="Close">&#x2715;</button>
     </div>
 
-    <div class="modal-body" style="display:flex; gap:1.25rem; align-items:flex-start;">
-
-      <!-- Cover -->
-      <div id="dm-cover" style="flex-shrink:0; width:100px; border-radius:var(--radius-sm);
-                                 overflow:hidden; aspect-ratio:2/3; position:relative;
-                                 display:flex; align-items:center; justify-content:center;">
+    <div class="modal-body">
+      <div style="display:flex; gap:1.25rem; align-items:flex-start;">
+        <!-- Cover -->
+        <div id="dm-cover" style="flex-shrink:0; width:100px; border-radius:var(--radius-sm);
+                                   overflow:hidden; aspect-ratio:2/3; position:relative;
+                                   display:flex; align-items:center; justify-content:center;"></div>
+        <!-- Info -->
+        <div style="flex:1; min-width:0;">
+          <div id="dm-author"  style="font-size:0.9375rem; color:var(--color-gray-600); margin-bottom:0.5rem;"></div>
+          <div id="dm-badge"   style="margin-bottom:0.75rem;"></div>
+          <div id="dm-isbn"    style="font-size:0.8125rem; color:var(--color-gray-500); margin-bottom:0.75rem;"></div>
+          <div id="dm-labels"  style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-bottom:0.75rem;"></div>
+          <div id="dm-summary" style="font-size:0.875rem; color:var(--color-gray-700); line-height:1.6; white-space:pre-wrap;"></div>
+        </div>
       </div>
 
-      <!-- Info -->
-      <div style="flex:1; min-width:0;">
-        <div id="dm-author"  style="font-size:0.9375rem; color:var(--color-gray-600); margin-bottom:0.5rem;"></div>
-        <div id="dm-badge"   style="margin-bottom:0.75rem;"></div>
-        <div id="dm-isbn"    style="font-size:0.8125rem; color:var(--color-gray-500); margin-bottom:0.75rem;"></div>
-        <div id="dm-labels"  style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-bottom:0.75rem;"></div>
-        <div id="dm-summary" style="font-size:0.875rem; color:var(--color-gray-700);
-                                    line-height:1.6; white-space:pre-wrap;"></div>
+      <!-- Active checkouts (staff only) -->
+      <div id="dm-checkouts" hidden></div>
+    </div>
+
+    <!-- Footer with checkout button (staff only) -->
+    <div id="dm-footer" class="modal-footer" hidden>
+      <button id="dm-checkout-btn" class="btn btn-primary">Check Out</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Checkout Modal (staff only) ───────────────────────────────────────── -->
+<div id="checkout-modal" class="modal-overlay" hidden>
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2 class="modal-title">Check Out</h2>
+      <button class="modal-close" id="cm-close" aria-label="Close">&#x2715;</button>
+    </div>
+
+    <div class="modal-body">
+      <p id="cm-book-name" style="font-weight:600; margin-bottom:1.25rem;"></p>
+
+      <div class="form-group">
+        <label class="form-label" for="cm-student-input">Student</label>
+        <div class="typeahead-wrapper">
+          <input id="cm-student-input" class="form-input"
+                 placeholder="Type student name…" autocomplete="off" />
+          <div id="cm-student-dropdown" class="typeahead-dropdown" hidden></div>
+        </div>
       </div>
 
+      <div class="form-group">
+        <label class="form-label" for="cm-due-date">Due Date</label>
+        <input id="cm-due-date" type="date" class="form-input" />
+        <p class="form-hint">Default is 14 days from today.</p>
+      </div>
+
+      <p id="cm-error" class="text-danger mt-2" hidden></p>
+    </div>
+
+    <div class="modal-footer">
+      <button id="cm-cancel"  class="btn btn-ghost">Cancel</button>
+      <button id="cm-confirm" class="btn btn-primary">Confirm Checkout</button>
     </div>
 
   </div>
 </div>
 
 <script type="module">
-import { subscribeToBooks, filterBooks } from './js/books.js';
-import { escHtml, openModal, closeModal, initModalDismiss } from './js/ui.js';
-import { auth } from './js/firebase-config.js';
-import { onAuthStateChanged } from 'firebase/auth';
-
-// ── Keep session alive + update header button ─────────────────────────────────
-// Attaching a listener prevents Firebase from dropping the auth token while the
-// user browses the public catalog. It also swaps "Staff login" → "Dashboard"
-// so a logged-in staff member can get back without confusion.
-onAuthStateChanged(auth, (firebaseUser) => {
-  const btn = document.getElementById('staff-btn');
-  if (firebaseUser) {
-    btn.textContent = 'Dashboard →';
-    btn.href = 'dashboard.html';
-  } else {
-    btn.textContent = 'Staff login';
-    btn.href = 'login.html';
-  }
-});
+import { subscribeToBooks, filterBooks }                      from './js/books.js';
+import { escHtml, openModal, closeModal,
+         initModalDismiss, showToast, formatDate }            from './js/ui.js';
+import { initAuth, signOutUser }                              from './js/auth.js';
+import { loadStudents, searchStudents }                       from './js/students.js';
+import { getActiveCheckoutsForBook, checkoutBook,
+         checkinBook, getOverdueStatus }                      from './js/checkouts.js';
+import { Timestamp }                                          from 'firebase/firestore';
 
 // ── Cover helpers ─────────────────────────────────────────────────────────────
 const COLORS = [
@@ -290,16 +352,61 @@ function placeholderColor(title) {
   for (const c of (title || '')) h = ((h << 5) - h + c.charCodeAt(0)) | 0;
   return COLORS[Math.abs(h) % COLORS.length];
 }
-
-// ── Detail modal ──────────────────────────────────────────────────────────────
-const detailModal = document.getElementById('detail-modal');
-initModalDismiss(detailModal);
-document.getElementById('dm-close').addEventListener('click', () => closeModal(detailModal));
+function coverImgTag(book, size = 'M', loading = 'lazy') {
+  const src = book.imageUrl
+    || (book.isbn ? `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(book.isbn)}-${size}.jpg` : '');
+  if (!src) return '';
+  return `<img src="${escHtml(src)}" alt="${escHtml(book.title)}" loading="${loading}" onerror="this.remove()" />`;
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let _allBooks    = [];
-let _activeLabel = null;   // null = All
-let _viewMode    = 'grid'; // 'grid' | 'list'
+let _allBooks      = [];
+let _activeLabel   = null;
+let _viewMode      = 'grid';
+let _staffUser     = null;
+let _currentBook   = null;
+let _selectedStudent = null;
+let _typeaheadHits   = [];
+
+// ── Auth — non-blocking: public users see catalog, staff get extra UI ─────────
+initAuth({
+  onAuthorized: async (user) => {
+    _staffUser = user;
+    document.getElementById('staff-btn').hidden  = true;
+    document.getElementById('staff-nav').hidden  = false;
+    document.getElementById('nav-user').innerHTML =
+      `${escHtml(user.name || user.email)} <span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-volunteer'}">${user.role}</span>`;
+    if (user.role === 'admin') {
+      document.querySelectorAll('.admin-only').forEach(el => el.hidden = false);
+    }
+    document.getElementById('signout-btn').addEventListener('click', signOutUser);
+    await loadStudents();
+    render(); // re-render cards with checkout buttons
+  },
+  onUnauthorized: () => {
+    _staffUser = null;
+    // Public view — books already loading via subscribeToBooks below
+  },
+});
+
+// ── Subscribe ─────────────────────────────────────────────────────────────────
+subscribeToBooks((books) => {
+  _allBooks = books;
+  renderLabelBar();
+  render();
+  document.getElementById('loading').hidden        = true;
+  document.getElementById('results-bar').hidden    = false;
+  document.getElementById('book-container').hidden = false;
+
+  // Refresh detail modal if open
+  if (_currentBook && !document.getElementById('detail-modal').hidden) {
+    const fresh = books.find(b => b.id === _currentBook.id);
+    if (fresh) { _currentBook = fresh; populateDetailModal(fresh); }
+  }
+});
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', render);
 
 // ── View toggle ───────────────────────────────────────────────────────────────
 document.getElementById('view-grid').addEventListener('click', () => setView('grid'));
@@ -312,26 +419,10 @@ function setView(mode) {
   render();
 }
 
-// ── Subscribe ─────────────────────────────────────────────────────────────────
-subscribeToBooks((books) => {
-  _allBooks = books;
-  renderLabelBar();
-  render();
-  document.getElementById('loading').hidden        = true;
-  document.getElementById('results-bar').hidden    = false;
-  document.getElementById('book-container').hidden = false;
-});
-
-// ── Search ────────────────────────────────────────────────────────────────────
-document.getElementById('search-input').addEventListener('input', render);
-
 // ── Filtered list ─────────────────────────────────────────────────────────────
 function getFiltered() {
-  const term = document.getElementById('search-input').value.trim();
-  let books = filterBooks(_allBooks, term);
-  if (_activeLabel) {
-    books = books.filter(b => Array.isArray(b.labels) && b.labels.includes(_activeLabel));
-  }
+  let books = filterBooks(_allBooks, document.getElementById('search-input').value.trim());
+  if (_activeLabel) books = books.filter(b => Array.isArray(b.labels) && b.labels.includes(_activeLabel));
   return books;
 }
 
@@ -340,13 +431,10 @@ function renderLabelBar() {
   const allLabels = [...new Set(_allBooks.flatMap(b => b.labels ?? []))].sort();
   const bar = document.getElementById('label-bar');
   if (!allLabels.length) { bar.hidden = true; return; }
-
   bar.hidden = false;
   bar.innerHTML = ['All', ...allLabels].map(l => `
     <button class="label-pill${(l === 'All' ? !_activeLabel : _activeLabel === l) ? ' active' : ''}"
-            data-label="${l === 'All' ? '' : escHtml(l)}">
-      ${escHtml(l)}
-    </button>`).join('');
+            data-label="${l === 'All' ? '' : escHtml(l)}">${escHtml(l)}</button>`).join('');
 }
 
 document.getElementById('label-bar').addEventListener('click', (e) => {
@@ -364,9 +452,7 @@ function render() {
   const empty     = document.getElementById('empty');
   const count     = document.getElementById('count');
 
-  count.textContent = books.length
-    ? `${books.length} book${books.length !== 1 ? 's' : ''}`
-    : '';
+  count.textContent = books.length ? `${books.length} book${books.length !== 1 ? 's' : ''}` : '';
 
   if (!books.length) {
     container.innerHTML = '';
@@ -377,16 +463,16 @@ function render() {
 
   if (_viewMode === 'grid') {
     container.className = 'book-grid-catalog';
-    container.innerHTML = books.map(book => renderCard(book)).join('');
+    container.innerHTML = books.map(renderCard).join('');
   } else {
     container.className = 'book-list-catalog';
-    container.innerHTML = books.map(book => renderRow(book)).join('');
+    container.innerHTML = books.map(renderRow).join('');
   }
 }
 
-function labelChipsHtml(labels, cls = 'card-label') {
+function labelChipsHtml(labels) {
   if (!Array.isArray(labels) || !labels.length) return '';
-  return `<div class="card-labels">${labels.map(l => `<span class="${cls}">${escHtml(l)}</span>`).join('')}</div>`;
+  return `<div class="card-labels">${labels.map(l => `<span class="card-label">${escHtml(l)}</span>`).join('')}</div>`;
 }
 
 function badgeHtml(book) {
@@ -398,18 +484,17 @@ function badgeHtml(book) {
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
-function coverImgTag(book, size = 'M', loading = 'lazy') {
-  const src = book.imageUrl
-    || (book.isbn ? `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(book.isbn)}-${size}.jpg` : '');
-  if (!src) return '';
-  return `<img src="${escHtml(src)}" alt="${escHtml(book.title)}" loading="${loading}" onerror="this.remove()" />`;
+function checkoutBtnHtml(book) {
+  if (!_staffUser || book.availableCopies <= 0) return '';
+  return `<button class="btn btn-primary btn-sm checkout-action-btn" data-id="${book.id}"
+                  style="margin-top:0.375rem;">Check Out</button>`;
 }
 
 function renderCard(book) {
   const color   = placeholderColor(book.title);
   const initial = (book.title || '?')[0].toUpperCase();
   return `
-    <div class="book-card-catalog" data-id="${book.id}" style="cursor:pointer">
+    <div class="book-card-catalog" data-id="${book.id}">
       <div class="book-cover" style="background-color:${color}">
         <span class="book-cover-initial">${escHtml(initial)}</span>
         ${coverImgTag(book)}
@@ -419,6 +504,7 @@ function renderCard(book) {
         <div class="book-card-author">${escHtml(book.author)}</div>
         ${labelChipsHtml(book.labels)}
         ${badgeHtml(book)}
+        ${checkoutBtnHtml(book)}
       </div>
     </div>`;
 }
@@ -429,27 +515,52 @@ function renderRow(book) {
   return `
     <div class="book-row-catalog" data-id="${book.id}">
       <div class="book-row-thumb" style="background-color:${color}">
-        ${escHtml(initial)}
-        ${coverImgTag(book)}
+        ${escHtml(initial)}${coverImgTag(book)}
       </div>
       <div class="book-row-info">
         <div class="book-row-title">${escHtml(book.title)}</div>
         <div class="book-row-author">${escHtml(book.author)}</div>
         ${labelChipsHtml(book.labels)}
       </div>
-      <div class="book-row-right">${badgeHtml(book)}</div>
+      <div class="book-row-right">
+        ${badgeHtml(book)}
+        ${checkoutBtnHtml(book)}
+      </div>
     </div>`;
 }
 
-// ── Click → detail modal ──────────────────────────────────────────────────────
+// ── Card / row click ──────────────────────────────────────────────────────────
 document.getElementById('book-container').addEventListener('click', (e) => {
+  // Checkout button — open checkout modal directly
+  const coBtn = e.target.closest('.checkout-action-btn');
+  if (coBtn) {
+    const book = _allBooks.find(b => b.id === coBtn.dataset.id);
+    if (book) openCheckoutModal(book);
+    return;
+  }
+  // Card / row — open detail modal
   const card = e.target.closest('[data-id]');
   if (!card) return;
   const book = _allBooks.find(b => b.id === card.dataset.id);
   if (book) openDetailModal(book);
 });
 
+// ── Book Detail Modal ─────────────────────────────────────────────────────────
+const detailModal = document.getElementById('detail-modal');
+initModalDismiss(detailModal);
+document.getElementById('dm-close').addEventListener('click', () => closeModal(detailModal));
+document.getElementById('dm-checkout-btn').addEventListener('click', () => {
+  closeModal(detailModal);
+  if (_currentBook) openCheckoutModal(_currentBook);
+});
+
 function openDetailModal(book) {
+  _currentBook = book;
+  populateDetailModal(book);
+  openModal(detailModal);
+}
+
+function populateDetailModal(book) {
   const color    = placeholderColor(book.title);
   const initial  = (book.title || '?')[0].toUpperCase();
   const coverUrl = book.imageUrl
@@ -477,11 +588,196 @@ function openDetailModal(book) {
     <span style="font-size:2rem;font-weight:800;color:rgba(255,255,255,0.75);position:relative;z-index:0;">
       ${escHtml(initial)}
     </span>
-    ${coverUrl ? `<img src="${coverUrl}" alt="${escHtml(book.title)}" onerror="this.remove()"
+    ${coverUrl ? `<img src="${escHtml(coverUrl)}" alt="${escHtml(book.title)}" onerror="this.remove()"
                       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" />` : ''}`;
 
-  openModal(detailModal);
+  // Staff-only: checkout button + active checkouts
+  const footer   = document.getElementById('dm-footer');
+  const coBtn    = document.getElementById('dm-checkout-btn');
+  const coSection = document.getElementById('dm-checkouts');
+
+  if (_staffUser) {
+    footer.hidden  = !avail;
+    coBtn.disabled = false;
+    coBtn.textContent = 'Check Out';
+    coSection.hidden = false;
+    loadAndRenderCheckouts(book);
+  } else {
+    footer.hidden    = true;
+    coSection.hidden = true;
+  }
 }
+
+async function loadAndRenderCheckouts(book) {
+  const el = document.getElementById('dm-checkouts');
+  if (book.availableCopies >= book.totalCopies) { el.innerHTML = ''; return; }
+
+  el.innerHTML = `
+    <div style="border-top:1px solid var(--color-gray-200); margin-top:1rem; padding-top:0.875rem;">
+      <p style="font-weight:600; font-size:0.875rem; margin-bottom:0.5rem; color:var(--color-gray-700);">Currently checked out</p>
+      <div id="dm-checkout-rows" style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="spinner spinner-sm"></span>
+        <span class="text-muted" style="font-size:0.875rem;">Loading…</span>
+      </div>
+    </div>`;
+
+  try {
+    const checkouts = await getActiveCheckoutsForBook(book.id);
+    const rowsEl = document.getElementById('dm-checkout-rows');
+    if (!rowsEl) return;
+
+    if (!checkouts.length) {
+      rowsEl.innerHTML = '<p class="text-muted" style="font-size:0.875rem;">No active checkouts found.</p>';
+      return;
+    }
+
+    rowsEl.innerHTML = checkouts.map(co => {
+      const { label, cls } = getOverdueStatus(co.dueDate);
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:0.5rem 0;border-bottom:1px solid var(--color-gray-100);gap:0.75rem;width:100%;">
+          <div>
+            <div style="font-weight:500;font-size:0.875rem;">${escHtml(co.studentName)}</div>
+            <div style="font-size:0.8125rem;color:var(--color-gray-500);">
+              ${escHtml(co.studentGrade)} · Due ${formatDate(co.dueDate)}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+            <span class="badge ${cls}">${label}</span>
+            <button class="btn btn-ghost btn-sm checkin-btn"
+                    data-checkout-id="${co.id}"
+                    data-student="${escHtml(co.studentName)}"
+                    data-book-id="${book.id}">Check In</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    console.error(err);
+    const rowsEl = document.getElementById('dm-checkout-rows');
+    if (rowsEl) rowsEl.innerHTML = '<p class="text-danger" style="font-size:0.875rem;">Failed to load.</p>';
+  }
+}
+
+// Check In from detail modal
+document.getElementById('dm-checkouts').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.checkin-btn');
+  if (!btn || btn.disabled) return;
+
+  const { checkoutId, student, bookId } = btn.dataset;
+  if (!confirm(`Confirm return from ${student}?`)) return;
+
+  btn.disabled    = true;
+  btn.textContent = '…';
+
+  try {
+    await checkinBook({ checkoutId, bookId });
+    showToast('Book checked in!', 'success');
+    loadAndRenderCheckouts(_currentBook);
+  } catch (err) {
+    console.error(err);
+    showToast('Check-in failed. Try again.', 'error');
+    btn.disabled    = false;
+    btn.textContent = 'Check In';
+  }
+});
+
+// ── Checkout Modal ────────────────────────────────────────────────────────────
+const checkoutModal = document.getElementById('checkout-modal');
+initModalDismiss(checkoutModal);
+document.getElementById('cm-close').addEventListener('click',  () => closeModal(checkoutModal));
+document.getElementById('cm-cancel').addEventListener('click', () => closeModal(checkoutModal));
+
+function openCheckoutModal(book) {
+  _currentBook     = book;
+  _selectedStudent = null;
+  _typeaheadHits   = [];
+
+  document.getElementById('cm-book-name').textContent   = book.title;
+  document.getElementById('cm-student-input').value     = '';
+  document.getElementById('cm-student-dropdown').hidden = true;
+  document.getElementById('cm-error').hidden            = true;
+  document.getElementById('cm-confirm').disabled        = false;
+  document.getElementById('cm-confirm').textContent     = 'Confirm Checkout';
+
+  const due = new Date();
+  due.setDate(due.getDate() + 14);
+  document.getElementById('cm-due-date').value = due.toISOString().slice(0, 10);
+
+  openModal(checkoutModal);
+}
+
+// ── Student typeahead ─────────────────────────────────────────────────────────
+const studentInput    = document.getElementById('cm-student-input');
+const studentDropdown = document.getElementById('cm-student-dropdown');
+
+studentInput.addEventListener('input', () => {
+  _selectedStudent = null;
+  const term = studentInput.value.trim();
+  if (term.length < 1) { studentDropdown.hidden = true; _typeaheadHits = []; return; }
+
+  _typeaheadHits = searchStudents(term);
+  if (!_typeaheadHits.length) { studentDropdown.hidden = true; return; }
+
+  studentDropdown.innerHTML = _typeaheadHits.map((s, i) => `
+    <div class="typeahead-item" data-index="${i}">
+      ${escHtml(s.name)}<span class="text-muted"> · ${escHtml(s.grade)}</span>
+    </div>`).join('');
+  studentDropdown.hidden = false;
+});
+
+studentDropdown.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  const item = e.target.closest('.typeahead-item');
+  if (!item) return;
+  const s = _typeaheadHits[parseInt(item.dataset.index)];
+  _selectedStudent          = s;
+  studentInput.value        = `${s.name} · ${s.grade}`;
+  studentDropdown.hidden    = true;
+});
+
+studentInput.addEventListener('blur', () => {
+  setTimeout(() => { studentDropdown.hidden = true; }, 150);
+});
+
+// ── Confirm checkout ──────────────────────────────────────────────────────────
+document.getElementById('cm-confirm').addEventListener('click', async () => {
+  const errorEl    = document.getElementById('cm-error');
+  const confirmBtn = document.getElementById('cm-confirm');
+  errorEl.hidden   = true;
+
+  if (!_selectedStudent) {
+    errorEl.textContent = 'Please select a student from the list.';
+    errorEl.hidden = false;
+    studentInput.focus();
+    return;
+  }
+  const dueDateStr = document.getElementById('cm-due-date').value;
+  if (!dueDateStr) {
+    errorEl.textContent = 'Please set a due date.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  confirmBtn.disabled    = true;
+  confirmBtn.textContent = 'Checking out…';
+
+  try {
+    await checkoutBook({
+      book:    _currentBook,
+      student: _selectedStudent,
+      dueDate: Timestamp.fromDate(new Date(dueDateStr + 'T00:00:00')),
+      user:    _staffUser,
+    });
+    closeModal(checkoutModal);
+    showToast(`Checked out to ${_selectedStudent.name}`, 'success');
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = 'Checkout failed. Please try again.';
+    errorEl.hidden      = false;
+    confirmBtn.disabled    = false;
+    confirmBtn.textContent = 'Confirm Checkout';
+  }
+});
 </script>
 
 </body>
