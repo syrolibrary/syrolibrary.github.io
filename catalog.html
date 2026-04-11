@@ -457,7 +457,7 @@ function renderCategoryTabs() {
     ...cats.map(c => ({ key: c, label: c, count: _allBooks.filter(b => b.category === c).length }))
   ].map(({ key, label, count }) => `
     <button class="category-tab${_activeCategory === key ? ' active' : ''}"
-            data-cat="${key ?? ''}">
+            data-cat="${escHtml(key ?? '')}">
       ${escHtml(label)}<span class="category-tab-count">${count}</span>
     </button>`).join('');
 }
